@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FRAMELESS Motion Path Animation Studio — alat multifungsi untuk desainer kreatif. Gambar jalur gerak, animasikan objek, dan kelola design system." />
+  <title>FRAMELESS · Motion Path Animation Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <div class="brand__text">
+        <h1 class="brand__name">FRAMELESS</h1>
+        <p class="brand__tag">Motion Path Animation Studio</p>
+      </div>
+    </div>
+
+    <div class="transport" role="group" aria-label="Kontrol pemutaran">
+      <button class="btn btn--ghost" id="btnReset" title="Reset ke awal">⟲ Reset</button>
+      <button class="btn btn--primary" id="btnPlay" title="Putar / Jeda animasi">▶ Play</button>
+      <div class="transport__scrub">
+        <input type="range" id="scrubber" min="0" max="1000" value="0" step="1" aria-label="Garis waktu" />
+        <span class="transport__time" id="timeLabel">0%</span>
+      </div>
+    </div>
+
+    <div class="topbar__right">
+      <button class="btn btn--ghost" id="btnExport" title="Ekspor konfigurasi sebagai JSON">⇩ Export</button>
+      <button class="btn btn--ghost" id="btnTheme" title="Ganti suasana warna">◑ Theme</button>
+    </div>
+  </header>
+
+  <!-- ============ WORKSPACE ============ -->
+  <main class="workspace">
+    <!-- ---- LEFT: TOOLS ---- -->
+    <aside class="rail rail--left" aria-label="Perkakas">
+      <nav class="tools">
+        <button class="tool is-active" data-tool="select" title="Pilih & pindahkan objek (V)">
+          <span class="tool__icon">⌖</span><span class="tool__label">Select</span>
+        </button>
+        <button class="tool" data-tool="path" title="Gambar jalur gerak (P)">
+          <span class="tool__icon">✎</span><span class="tool__label">Path</span>
+        </button>
+        <button class="tool" data-tool="object" title="Tempel objek (O)">
+          <span class="tool__icon">◆</span><span class="tool__label">Object</span>
+        </button>
+        <button class="tool" data-tool="erase" title="Hapus (E)">
+          <span class="tool__icon">⌫</span><span class="tool__label">Erase</span>
+        </button>
+      </nav>
+
+      <div class="rail__group">
+        <h2 class="rail__title">Bentuk Objek</h2>
+        <div class="shape-grid" id="shapeGrid">
+          <button class="shape is-active" data-shape="circle" aria-label="Lingkaran">●</button>
+          <button class="shape" data-shape="square" aria-label="Kotak">■</button>
+          <button class="shape" data-shape="triangle" aria-label="Segitiga">▲</button>
+          <button class="shape" data-shape="star" aria-label="Bintang">★</button>
+          <button class="shape" data-shape="ring" aria-label="Cincin">◎</button>
+          <button class="shape" data-shape="diamond" aria-label="Berlian">◆</button>
+        </div>
+      </div>
+
+      <div class="rail__group">
+        <h2 class="rail__title">Hint</h2>
+        <p class="hint" id="hint">Pilih <b>Path</b>, lalu klik beberapa titik di kanvas untuk menggambar jalur. Lalu pilih <b>Object</b> dan klik untuk menempel objek yang akan menyusuri jalur.</p>
+      </div>
+    </aside>
+
+    <!-- ---- CENTER: CANVAS ---- -->
+    <section class="stage" aria-label="Kanvas">
+      <div class="stage__meta">
+        <span id="stageHint" class="stage__hint">Mode: Select</span>
+        <span class="stage__coords" id="coords">x: 0 · y: 0</span>
+      </div>
+      <div class="canvas-wrap" id="canvasWrap">
+        <svg id="canvas" class="canvas" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" class="grid-line" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+          <!-- path, objects, dan traveling markers di-inject oleh app.js -->
+          <g id="layerPaths"></g>
+          <g id="layerObjects"></g>
+          <g id="layerTravelers"></g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ---- RIGHT: PROPERTIES + DESIGN SYSTEM ---- -->
+    <aside class="rail rail--right" aria-label="Properti">
+      <div class="panel">
+        <h2 class="panel__title">Animasi</h2>
+        <label class="field">
+          <span class="field__label">Durasi (detik)</span>
+          <input type="range" id="duration" min="0.5" max="12" step="0.1" value="4" />
+          <output class="field__out" id="durationOut">4.0s</output>
+        </label>
+        <label class="field">
+          <span class="field__label">Easing</span>
+          <select id="easing">
+            <option value="linear">Linear</option>
+            <option value="easeInOut" selected>Ease In-Out</option>
+            <option value="easeIn">Ease In</option>
+            <option value="easeOut">Ease Out</option>
+            <option value="elastic">Elastic</option>
+            <option value="bounce">Bounce</option>
+          </select>
+        </label>
+        <label class="field field--check">
+          <input type="checkbox" id="loop" checked />
+          <span>Ulang terus (loop)</span>
+        </label>
+        <label class="field field--check">
+          <input type="checkbox" id="orient" />
+          <span>Rotasi mengikuti arah jalur</span>
+        </label>
+        <label class="field field--check">
+          <input type="checkbox" id="trail" checked />
+          <span>Jejak gerak (motion trail)</span>
+        </label>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel__title">Objek Terpilih</h2>
+        <label class="field">
+          <span class="field__label">Ukuran</span>
+          <input type="range" id="objSize" min="8" max="90" step="1" value="28" />
+          <output class="field__out" id="objSizeOut">28</output>
+        </label>
+        <label class="field">
+          <span class="field__label">Warna</span>
+          <input type="color" id="objColor" value="#F5F749" />
+        </label>
+        <p class="panel__note" id="objNote">Tidak ada objek terpilih.</p>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel__title">Design System</h2>
+        <div class="palette" id="palette" aria-label="Palet warna aktif"></div>
+        <div class="type-scale">
+          <p class="ts ts--xl">Aa</p>
+          <p class="ts ts--lg">Display · 2.618rem</p>
+          <p class="ts ts--md">Judul · 1.618rem</p>
+          <p class="ts ts--sm">Teks · 1rem · ratio φ (1.618)</p>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="statusbar">
+    <span id="statusObjects">Objek: 0</span>
+    <span id="statusPoints">Titik jalur: 0</span>
+    <span class="statusbar__spacer"></span>
+    <span class="statusbar__credit">FRAMELESS Studio · frameless • for creative industry</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

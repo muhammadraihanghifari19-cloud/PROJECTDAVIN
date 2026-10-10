@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0E0E12" />
+  <meta name="description" content="FRAMELESS Motion Path Animation Studio — alat multifungsi untuk desainer kreatif. Gambar jalur gerak, animasikan objek, dan kelola design system." />
+  <title>FRAMELESS · Motion Path Animation Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+/* =========================================================
+   FRAMELESS · Motion Path Animation Studio
+   Mobile-first responsive · "brutalist neon lab"
+   Golden Ratio φ = 1.618
+   ========================================================= */
+
+:root {
+  --bg:#0E0E12; --bg-2:#16161D; --bg-3:#1F1F29; --line:#2C2C3A;
+  --ink:#ECECF2; --ink-soft:#9A9AAE;
+  --accent:#F5F749; --accent-2:#FF4D6D; --accent-3:#4DE1FF; --accent-4:#B388FF;
+
+  --t-xl:2.618rem; --t-lg:1.618rem; --t-md:1.272rem; --t-sm:1rem; --t-xs:.82rem;
+
+  --font-display:"Archivo Black","Arial Black",system-ui,sans-serif;
+  --font-ui:"Space Grotesk",system-ui,"Segoe UI",Roboto,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"Courier New",monospace;
+
+  --radius:16px; --gap:14px;
+  --shadow:0 10px 40px rgba(0,0,0,.45);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+body.theme-solar {
+  --bg:#F4F1E8; --bg-2:#FFFFFF; --bg-3:#EDE8DA; --line:#D8D1BE;
+  --ink:#1A1A20; --ink-soft:#6B6657;
+  --accent:#FF5A1F; --accent-2:#0057FF; --accent-3:#00A878; --accent-4:#9B51E0;
+  --shadow:0 10px 40px rgba(0,0,0,.12);
+}
+body.theme-solar { --theme-color:#F4F1E8; }
+
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; }
+body {
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font-ui); font-size:var(--t-sm); line-height:1.5;
+  height:100dvh; overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  transition:background .3s ease, color .3s ease;
+}
+button { font-family:inherit; }
+
+/* =========================================================
+   APP SHELL — default = MOBILE layout
+   ========================================================= */
+.app {
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  height:100dvh;
+  padding-top:var(--safe-t);
+}
+
+/* ---------- TOP BAR (mobile) : dua baris rapi ---------- */
+.topbar {
+  display:flex; flex-direction:column; gap:10px;
+  padding:12px 14px;
+  background:var(--bg-2);
+  border-bottom:1px solid var(--line);
+}
+.topbar__row { display:flex; align-items:center; gap:10px; }
+.topbar__row--main { justify-content:space-between; }
+
+.brand { display:flex; align-items:center; gap:10px; min-width:0; }
+.brand__text { min-width:0; }
+.brand__mark {
+  width:30px; height:30px; flex:0 0 auto;
+  background:var(--accent);
+  clip-path:polygon(0 0,100% 0,100% 70%,70% 70%,70% 100%,0 100%);
+  box-shadow:0 0 16px var(--accent);
+}
+.brand__name { font-family:var(--font-display); font-size:1.15rem; letter-spacing:.1em; line-height:1.05; white-space:nowrap; }
+.brand__tag { font-size:.68rem; color:var(--ink-soft); letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.topbar__actions { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+
+/* baris transport: play + slider penuh */
+.topbar__row--transport { gap:12px; }
+
+.btn-play {
+  width:48px; height:48px; flex:0 0 auto;
+  display:grid; place-items:center;
+  font-size:1.15rem; font-weight:700;
+  background:var(--accent); color:#0E0E12;
+  border:none; border-radius:50%;
+  cursor:pointer;
+  box-shadow:0 0 18px rgba(245,247,73,.4);
+  transition:transform .08s ease;
+}
+.btn-play:active { transform:scale(.92); }
+
+.icon-btn {
+  width:42px; height:42px; flex:0 0 auto;
+  display:grid; place-items:center;
+  font-size:1.05rem;
+  background:var(--bg-3); color:var(--ink);
+  border:1px solid var(--line); border-radius:12px;
+  cursor:pointer;
+}
+.icon-btn:active { transform:scale(.94); }
+
+/* scrubbar mobile: memanjang penuh di baris transport */
+.scrubbar { flex:1; display:flex; align-items:center; gap:12px; min-width:0; }
+.scrubbar input[type="range"] { flex:1; min-width:0; }
+.scrubbar .time { font-family:var(--font-mono); font-size:.8rem; color:var(--ink-soft); min-width:42px; text-align:right; flex:0 0 auto; }
+
+/* ---------- STAGE ---------- */
+.stage { position:relative; min-height:0; background:var(--bg); }
+.canvas-wrap {
+  position:absolute; inset:10px;
+  background:
+    radial-gradient(1000px 500px at 70% -10%, rgba(179,136,255,.10), transparent 60%),
+    var(--bg-2);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  touch-action:none;
+}
+.canvas { width:100%; height:100%; display:block; cursor:crosshair; touch-action:none; }
+.grid-line { stroke:var(--line); stroke-width:1; opacity:.5; }
+
+/* badge mode + koordinat melayang di atas kanvas */
+.stage-hud {
+  position:absolute; top:18px; left:18px; right:18px;
+  display:flex; justify-content:space-between; align-items:center;
+  pointer-events:none;
+  font-family:var(--font-mono); font-size:.72rem;
+}
+.stage-hud .mode {
+  pointer-events:none;
+  background:rgba(0,0,0,.35); color:var(--accent);
+  padding:4px 10px; border-radius:999px;
+  border:1px solid var(--line);
+}
+.stage-hud .coords { color:var(--ink-soft); background:rgba(0,0,0,.25); padding:4px 10px; border-radius:999px; }
+
+/* hint toast di tengah bawah kanvas */
+.hint-toast {
+  position:absolute; left:50%; bottom:16px; transform:translateX(-50%);
+  max-width:90%;
+  background:rgba(0,0,0,.6); color:var(--ink);
+  border:1px solid var(--line); border-radius:12px;
+  padding:8px 14px; font-size:.78rem; text-align:center;
+  pointer-events:none; opacity:0; transition:opacity .25s ease;
+}
+.hint-toast.show { opacity:1; }
+.hint-toast b { color:var(--accent); }
+
+/* SVG motion elements */
+.mp-path { fill:none; stroke:var(--accent-3); stroke-width:2.5; stroke-dasharray:7 7; opacity:.9; }
+.mp-node { fill:var(--bg); stroke:var(--accent-3); stroke-width:3; cursor:grab; touch-action:none; }
+.mp-node:hover { fill:var(--accent-3); }
+.mp-trail { fill:none; opacity:.35; }
+.mp-obj { cursor:pointer; touch-action:none; }
+.sel-ring { fill:none; stroke:var(--accent); stroke-width:2.5; stroke-dasharray:4 4; }
+
+/* ---------- BOTTOM TOOLBAR (mobile) ---------- */
+.toolbar {
+  display:flex; align-items:stretch; gap:6px;
+  padding:8px 10px calc(8px + var(--safe-b));
+  background:var(--bg-2);
+  border-top:1px solid var(--line);
+}
+.tool {
+  flex:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  padding:9px 2px;
+  background:transparent; color:var(--ink-soft);
+  border:1px solid transparent; border-radius:14px;
+  cursor:pointer; min-height:58px;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.tool .tool__icon { font-size:1.35rem; line-height:1; }
+.tool .tool__label { font-size:.66rem; letter-spacing:.02em; }
+.tool.is-active { background:var(--bg-3); color:var(--accent); border-color:var(--accent); }
+
+/* tombol buka sheet properti sebagai item toolbar paling kanan */
+.tool--sheet { color:var(--accent-3); }
+
+/* ---------- BOTTOM SHEET (mobile panels) ---------- */
+.scrim {
+  position:fixed; inset:0; background:rgba(0,0,0,.55);
+  opacity:0; visibility:hidden; transition:opacity .25s ease, visibility .25s ease;
+  z-index:40;
+}
+.scrim.open { opacity:1; visibility:visible; }
+
+.sheet {
+  position:fixed; left:0; right:0; bottom:0; z-index:50;
+  background:var(--bg-2);
+  border-top-left-radius:22px; border-top-right-radius:22px;
+  border-top:1px solid var(--line);
+  box-shadow:0 -12px 40px rgba(0,0,0,.5);
+  transform:translateY(102%);
+  transition:transform .3s cubic-bezier(.22,1,.36,1);
+  max-height:82dvh; overflow-y:auto;
+  padding:0 16px calc(20px + var(--safe-b));
+}
+.sheet.open { transform:translateY(0); }
+.sheet__grab {
+  position:sticky; top:0; z-index:1;
+  background:var(--bg-2);
+  padding:10px 0 6px;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+.sheet__grab::before { content:""; width:44px; height:5px; border-radius:5px; background:var(--line); }
+.sheet__tabs { display:flex; gap:8px; width:100%; }
+.sheet__tab {
+  flex:1; padding:9px; border-radius:12px;
+  background:var(--bg-3); color:var(--ink-soft);
+  border:1px solid var(--line); font-size:.8rem; cursor:pointer;
+}
+.sheet__tab.is-active { color:var(--accent); border-color:var(--accent); }
+.sheet__page { display:none; padding-top:12px; }
+.sheet__page.is-active { display:block; }
+
+/* ---------- Panels shared controls ---------- */
+.panel { display:flex; flex-direction:column; gap:16px; }
+.panel__title { font-size:.72rem; text-transform:uppercase; letter-spacing:.16em; color:var(--ink-soft); font-weight:700; }
+.panel__note { font-size:.8rem; color:var(--ink-soft); }
+
+.field { display:flex; flex-direction:column; gap:8px; position:relative; }
+.field__label { font-size:.8rem; color:var(--ink-soft); }
+.field__out { position:absolute; right:0; top:0; font-family:var(--font-mono); font-size:.8rem; color:var(--accent); }
+.field--check { flex-direction:row; align-items:center; gap:12px; padding:6px 0; }
+.field--check span { font-size:.88rem; }
+
+input[type="range"] {
+  -webkit-appearance:none; appearance:none; width:100%; height:6px;
+  background:var(--line); border-radius:6px; outline:none;
+}
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:22px; height:22px; border-radius:50%; background:var(--accent); cursor:pointer; box-shadow:0 0 0 4px rgba(245,247,73,.2); }
+input[type="range"]::-moz-range-thumb { width:22px; height:22px; border:none; border-radius:50%; background:var(--accent); cursor:pointer; }
+
+select, input[type="color"] {
+  width:100%; background:var(--bg-3); color:var(--ink);
+  border:1px solid var(--line); border-radius:12px;
+  padding:12px; font-family:var(--font-ui); font-size:.9rem; cursor:pointer;
+}
+input[type="color"] { height:48px; padding:4px; }
+input[type="checkbox"] { accent-color:var(--accent); width:22px; height:22px; cursor:pointer; flex:0 0 auto; }
+
+/* shape chooser (dalam sheet / rail) */
+.shape-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+.shape {
+  aspect-ratio:1; display:grid; place-items:center; font-size:1.4rem;
+  background:var(--bg-3); border:1px solid var(--line); border-radius:14px;
+  color:var(--ink); cursor:pointer; transition:transform .08s ease, border-color .15s ease;
+}
+.shape:active { transform:scale(.92); }
+.shape.is-active { border-color:var(--accent); color:var(--accent); }
+
+/* palette */
+.palette { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.swatch { aspect-ratio:1; border-radius:12px; border:1px solid var(--line); position:relative; cursor:pointer; }
+.swatch::after { content:attr(data-hex); position:absolute; inset:auto 0 4px 0; font-family:var(--font-mono); font-size:8px; text-align:center; color:rgba(255,255,255,.9); mix-blend-mode:difference; }
+
+/* type scale showcase */
+.type-scale { display:flex; flex-direction:column; gap:4px; }
+.ts { line-height:1.1; }
+.ts--xl { font-family:var(--font-display); font-size:var(--t-xl); color:var(--accent); }
+.ts--lg { font-family:var(--font-display); font-size:var(--t-md); }
+.ts--md { font-size:var(--t-sm); color:var(--ink); }
+.ts--sm { font-size:.8rem; color:var(--ink-soft); font-family:var(--font-mono); }
+
+/* status (hidden on mobile, shown desktop) */
+.statusbar { display:none; }
+
+/* desktop-only rails hidden on mobile */
+.rail { display:none; }
+
+/* =========================================================
+   DESKTOP LAYOUT  (≥ 900px)  — 3 kolom klasik
+   ========================================================= */
+@media (min-width:900px) {
+  .app {
+    grid-template-columns:200px 1fr 320px;
+    grid-template-rows:auto 1fr auto;
+    grid-template-areas:
+      "top    top    top"
+      "left   stage  right"
+      "status status status";
+    gap:var(--gap); padding:var(--gap);
+    height:100dvh;
+  }
+  /* Desktop: topbar jadi satu baris; dua "row" diratakan menyamping */
+  .topbar {
+    grid-area:top; border-radius:var(--radius); border:1px solid var(--line);
+    flex-direction:row; align-items:center; gap:16px; padding:10px 18px;
+  }
+  .topbar__row--main { flex:0 0 auto; }
+  .topbar__row--transport { flex:1; min-width:300px; }
+  .brand { margin-right:8px; }
+  .scrubbar { flex:1; }
+
+  .stage { grid-area:stage; }
+  .canvas-wrap { inset:0; }
+
+  .rail {
+    display:flex; flex-direction:column; gap:18px;
+    background:var(--bg-2); border:1px solid var(--line);
+    border-radius:var(--radius); padding:16px; overflow-y:auto;
+  }
+  .rail--left { grid-area:left; }
+  .rail--right { grid-area:right; }
+
+  .toolbar { display:none; }       /* mobile bottom toolbar disembunyikan */
+  .scrim, .sheet { display:none; }  /* sheet tidak dipakai di desktop */
+
+  .statusbar {
+    display:flex; grid-area:status; align-items:center; gap:18px;
+    padding:0 18px; background:var(--bg-2); border:1px solid var(--line);
+    border-radius:var(--radius); min-height:40px;
+    font-family:var(--font-mono); font-size:.78rem; color:var(--ink-soft);
+  }
+  .statusbar__spacer { flex:1; }
+  .statusbar__credit { color:var(--accent); letter-spacing:.04em; }
+
+  /* rail tools jadi tombol vertikal */
+  .rail .tools { display:flex; flex-direction:column; gap:8px; }
+  .rail .tool { flex-direction:row; justify-content:flex-start; gap:12px; min-height:0; padding:11px 14px; color:var(--ink); }
+  .rail .tool .tool__icon { font-size:1.1rem; }
+  .rail .tool .tool__label { font-size:.95rem; }
+
+  .rail__group { display:flex; flex-direction:column; gap:12px; }
+  .rail__title { font-size:.72rem; text-transform:uppercase; letter-spacing:.18em; color:var(--ink-soft); font-weight:700; }
+  .rail .shape-grid { grid-template-columns:repeat(3,1fr); }
+  .rail .hint { font-size:.8rem; color:var(--ink-soft); line-height:1.6; }
+  .rail .hint b { color:var(--accent); }
+
+  .rail .panel + .panel { margin-top:4px; }
+
+  /* play button desktop: pakai pill, bukan bulat */
+  .btn-play { width:auto; height:auto; border-radius:12px; padding:10px 20px; font-size:.9rem; }
+  .icon-btn { border-radius:12px; }
+  .stage-hud { display:none; }   /* desktop pakai status di bawah */
+}
+
+/* scrollbar */
+.rail::-webkit-scrollbar, .sheet::-webkit-scrollbar { width:8px; }
+.rail::-webkit-scrollbar-thumb, .sheet::-webkit-scrollbar-thumb { background:var(--line); border-radius:8px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- ============ TOP BAR ============ -->
+    <header class="topbar">
+      <!-- Baris 1: brand + tombol aksi -->
+      <div class="topbar__row topbar__row--main">
+        <div class="brand">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <div class="brand__text">
+            <div class="brand__name">FRAMELESS</div>
+            <div class="brand__tag">Motion Path Studio</div>
+          </div>
+        </div>
+        <div class="topbar__actions">
+          <button class="icon-btn" id="btnReset" title="Reset">⟲</button>
+          <button class="icon-btn" id="btnTheme" title="Ganti tema">◑</button>
+          <button class="icon-btn" id="btnExport" title="Export JSON">⇩</button>
+        </div>
+      </div>
+      <!-- Baris 2: play + timeline memanjang penuh -->
+      <div class="topbar__row topbar__row--transport">
+        <button class="btn-play" id="btnPlay" title="Play / Pause">▶</button>
+        <div class="scrubbar">
+          <input type="range" id="scrubber" min="0" max="1000" value="0" step="1" aria-label="Garis waktu" />
+          <span class="time" id="timeLabel">0%</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ LEFT RAIL (desktop only) ============ -->
+    <aside class="rail rail--left" aria-label="Perkakas">
+      <nav class="tools" id="desktopTools">
+        <button class="tool is-active" data-tool="select"><span class="tool__icon">⌖</span><span class="tool__label">Select</span></button>
+        <button class="tool" data-tool="path"><span class="tool__icon">✎</span><span class="tool__label">Path</span></button>
+        <button class="tool" data-tool="object"><span class="tool__icon">◆</span><span class="tool__label">Object</span></button>
+        <button class="tool" data-tool="erase"><span class="tool__icon">⌫</span><span class="tool__label">Erase</span></button>
+      </nav>
+      <div class="rail__group">
+        <div class="rail__title">Bentuk Objek</div>
+        <div class="shape-grid" data-shapehost></div>
+      </div>
+      <div class="rail__group">
+        <div class="rail__title">Hint</div>
+        <p class="hint">Pilih <b>Path</b>, tap titik demi titik di kanvas untuk menggambar jalur. Lalu <b>Object</b> untuk menempel objek yang menyusuri jalur. <b>Select</b> untuk menggeser.</p>
+      </div>
+    </aside>
+
+    <!-- ============ STAGE ============ -->
+    <section class="stage" aria-label="Kanvas">
+      <div class="canvas-wrap" id="canvasWrap">
+        <svg id="canvas" class="canvas" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" class="grid-line" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+          <g id="layerPaths"></g>
+          <g id="layerObjects"></g>
+        </svg>
+      </div>
+      <div class="stage-hud">
+        <span class="mode" id="stageHint">Select</span>
+        <span class="coords" id="coords">x:0 y:0</span>
+      </div>
+      <div class="hint-toast" id="hintToast"></div>
+    </section>
+
+    <!-- ============ RIGHT RAIL (desktop only) ============ -->
+    <aside class="rail rail--right" aria-label="Properti">
+      <div class="panel" data-panelhost="anim"></div>
+      <div class="panel" data-panelhost="obj"></div>
+      <div class="panel" data-panelhost="design"></div>
+    </aside>
+
+    <!-- ============ BOTTOM TOOLBAR (mobile only) ============ -->
+    <nav class="toolbar" id="mobileTools" aria-label="Perkakas">
+      <button class="tool is-active" data-tool="select"><span class="tool__icon">⌖</span><span class="tool__label">Pilih</span></button>
+      <button class="tool" data-tool="path"><span class="tool__icon">✎</span><span class="tool__label">Jalur</span></button>
+      <button class="tool" data-tool="object"><span class="tool__icon">◆</span><span class="tool__label">Objek</span></button>
+      <button class="tool" data-tool="erase"><span class="tool__icon">⌫</span><span class="tool__label">Hapus</span></button>
+      <button class="tool tool--sheet" id="btnSheet"><span class="tool__icon">⚙</span><span class="tool__label">Atur</span></button>
+    </nav>
+
+    <!-- ============ STATUS BAR (desktop only) ============ -->
+    <footer class="statusbar">
+      <span id="statusObjects">Objek: 0</span>
+      <span id="statusPoints">Titik jalur: 0</span>
+      <span class="statusbar__spacer"></span>
+      <span class="statusbar__credit">FRAMELESS Studio · for creative industry</span>
+    </footer>
+  </div>
+
+  <!-- ============ MOBILE BOTTOM SHEET ============ -->
+  <div class="scrim" id="scrim"></div>
+  <section class="sheet" id="sheet" aria-label="Panel pengaturan">
+    <div class="sheet__grab" id="sheetGrab">
+      <div class="sheet__tabs">
+        <button class="sheet__tab is-active" data-page="anim">Animasi</button>
+        <button class="sheet__tab" data-page="obj">Objek</button>
+        <button class="sheet__tab" data-page="design">Sistem</button>
+      </div>
+    </div>
+    <div class="sheet__page is-active" data-page="anim"><div class="panel" data-panelhost="anim-m"></div></div>
+    <div class="sheet__page" data-page="obj">
+      <div class="rail__group" style="margin-bottom:16px;">
+        <div class="rail__title">Bentuk Objek</div>
+        <div class="shape-grid" data-shapehost></div>
+      </div>
+      <div class="panel" data-panelhost="obj-m"></div>
+    </div>
+    <div class="sheet__page" data-page="design"><div class="panel" data-panelhost="design-m"></div></div>
+  </section>
+
+  <script>
+/* =========================================================
+   FRAMELESS · Engine (standalone, mobile-first)
+   ========================================================= */
+(function () {
+  "use strict";
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+
+  const svg = $("canvas");
+  const layerPaths = $("layerPaths");
+  const layerObjects = $("layerObjects");
+  const btnPlay = $("btnPlay"), btnReset = $("btnReset"), btnExport = $("btnExport"), btnTheme = $("btnTheme");
+  const scrubber = $("scrubber"), timeLabel = $("timeLabel");
+  const stageHint = $("stageHint"), coordsEl = $("coords"), hintToast = $("hintToast");
+  const statusObjects = $("statusObjects"), statusPoints = $("statusPoints");
+  const scrim = $("scrim"), sheet = $("sheet"), btnSheet = $("btnSheet");
+
+  /* ---- Controls dibuat sekali, lalu di-"mount" ke panel desktop ATAU sheet mobile ---- */
+  // Kita buat satu set elemen kontrol dan taruh HTML-nya di kedua host via template string,
+  // tapi untuk hindari duplikasi id, kita render per-host dan simpan referensi aktif.
+
+  const state = { tool:"select", shape:"circle", points:[], objects:[], selectedId:null, playing:false, progress:0, rafId:null, lastTs:0 };
+  let pathEl = null, uid = 1;
+
+  const easings = {
+    linear:(t)=>t, easeIn:(t)=>t*t, easeOut:(t)=>t*(2-t),
+    easeInOut:(t)=>(t<0.5?2*t*t:-1+(4-2*t)*t),
+    elastic:(t)=>{ if(t===0||t===1)return t; const p=0.3; return Math.pow(2,-10*t)*Math.sin(((t-p/4)*(2*Math.PI))/p)+1; },
+    bounce:(t)=>{ const n1=7.5625,d1=2.75; if(t<1/d1)return n1*t*t; if(t<2/d1)return n1*(t-=1.5/d1)*t+0.75; if(t<2.5/d1)return n1*(t-=2.25/d1)*t+0.9375; return n1*(t-=2.625/d1)*t+0.984375; },
+  };
+
+  /* ===== Settings model (satu sumber kebenaran, UI disinkronkan) ===== */
+  const settings = { duration:4, easing:"easeInOut", loop:true, orient:false, trail:true, objSize:28, objColor:"#F5F749" };
+
+  function toSvgPoint(evt) {
+    const pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY;
+    const ctm = svg.getScreenCTM(); if (!ctm) return { x:0, y:0 };
+    const inv = pt.matrixTransform(ctm.inverse());
+    return { x:Math.round(inv.x), y:Math.round(inv.y) };
+  }
+  function el(tag, attrs) { const n = document.createElementNS(SVGNS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; }
+
+  function buildPathD(points) {
+    if (points.length < 2) return "";
+    if (points.length === 2) return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+    let d = `M ${points[0].x} ${points[0].y}`;
+    for (let i=0;i<points.length-1;i++) {
+      const p0=points[i-1]||points[i], p1=points[i], p2=points[i+1], p3=points[i+2]||p2;
+      const c1x=p1.x+(p2.x-p0.x)/6, c1y=p1.y+(p2.y-p0.y)/6, c2x=p2.x-(p3.x-p1.x)/6, c2y=p2.y-(p3.y-p1.y)/6;
+      d += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p2.x} ${p2.y}`;
+    }
+    return d;
+  }
+  function starPoints(r) { const pts=[]; for(let i=0;i<10;i++){const rad=(Math.PI/5)*i-Math.PI/2,rr=i%2===0?r:r*0.45;pts.push(`${(Math.cos(rad)*rr).toFixed(1)},${(Math.sin(rad)*rr).toFixed(1)}`);} return pts.join(" "); }
+  function makeShapeEl(shape, size, color) {
+    const r = size/2;
+    switch (shape) {
+      case "square": return el("rect",{x:-r,y:-r,width:size,height:size,rx:size*0.12,fill:color});
+      case "triangle": return el("polygon",{points:`0,${-r} ${r},${r} ${-r},${r}`,fill:color});
+      case "diamond": return el("polygon",{points:`0,${-r} ${r},0 0,${r} ${-r},0`,fill:color});
+      case "star": return el("polygon",{points:starPoints(r),fill:color});
+      case "ring": return el("circle",{cx:0,cy:0,r:r,fill:"none",stroke:color,"stroke-width":Math.max(3,size*0.18)});
+      default: return el("circle",{cx:0,cy:0,r:r,fill:color});
+    }
+  }
+
+  function renderPath() {
+    layerPaths.innerHTML = ""; pathEl = null;
+    const d = buildPathD(state.points);
+    if (d) {
+      if (settings.trail) layerPaths.appendChild(el("path",{d,class:"mp-trail",stroke:"var(--accent-4)","stroke-width":10}));
+      pathEl = el("path",{d,class:"mp-path"}); layerPaths.appendChild(pathEl);
+    }
+    state.points.forEach((p,i)=>layerPaths.appendChild(el("circle",{cx:p.x,cy:p.y,r:9,class:"mp-node","data-i":i})));
+    if (statusPoints) statusPoints.textContent = `Titik jalur: ${state.points.length}`;
+  }
+
+  function addObject(pt) {
+    const obj = { id:uid++, shape:state.shape, size:settings.objSize, color:settings.objColor, start:0, home:{x:pt.x,y:pt.y} };
+    state.objects.push(obj); state.selectedId = obj.id; renderObjects(); syncObjUI();
+  }
+  function renderObjects() {
+    layerObjects.innerHTML = "";
+    state.objects.forEach((obj)=>{
+      const g = el("g",{class:"mp-obj","data-id":obj.id});
+      g.appendChild(makeShapeEl(obj.shape,obj.size,obj.color));
+      if (obj.id===state.selectedId) g.appendChild(el("circle",{cx:0,cy:0,r:obj.size/2+8,class:"sel-ring"}));
+      obj.el = g; layerObjects.appendChild(g);
+    });
+    if (statusObjects) statusObjects.textContent = `Objek: ${state.objects.length}`;
+    positionObjects(state.progress);
+  }
+  function positionObjects(globalT) {
+    const hasPath = pathEl && state.points.length>=2;
+    let totalLen = 0;
+    if (hasPath) { try { totalLen = pathEl.getTotalLength(); } catch(e){ totalLen = 0; } }
+    const easeFn = easings[settings.easing] || easings.linear;
+    state.objects.forEach((obj)=>{
+      if (!obj.el) return;
+      if (hasPath && totalLen>0) {
+        let t=(globalT+obj.start)%1; if(t<0)t+=1;
+        const eased=Math.min(1,Math.max(0,easeFn(t)));
+        const point=pathEl.getPointAtLength(eased*totalLen);
+        let angle=0;
+        if (settings.orient){ const ahead=pathEl.getPointAtLength(Math.min(totalLen,eased*totalLen+1)); angle=Math.atan2(ahead.y-point.y,ahead.x-point.x)*(180/Math.PI); }
+        obj.el.setAttribute("transform",`translate(${point.x} ${point.y}) rotate(${angle})`);
+      } else {
+        obj.el.setAttribute("transform",`translate(${obj.home.x} ${obj.home.y})`);
+      }
+    });
+  }
+
+  function tick(ts) {
+    if (!state.playing) return;
+    if (!state.lastTs) state.lastTs = ts;
+    const dt=(ts-state.lastTs)/1000; state.lastTs=ts;
+    state.progress += dt/(settings.duration||4);
+    if (state.progress>=1){ if(settings.loop) state.progress=state.progress%1; else { state.progress=1; stop(); } }
+    syncScrubber(); positionObjects(state.progress);
+    if (state.playing) state.rafId = requestAnimationFrame(tick);
+  }
+  function play() {
+    if (state.objects.length===0 || state.points.length<2){ toast("Butuh minimal 1 objek & jalur 2+ titik untuk memutar."); return; }
+    state.playing=true; state.lastTs=0; btnPlay.textContent="⏸"; state.rafId=requestAnimationFrame(tick);
+  }
+  function stop() { state.playing=false; btnPlay.textContent="▶"; if(state.rafId)cancelAnimationFrame(state.rafId); state.rafId=null; }
+  function togglePlay(){ state.playing?stop():play(); }
+  function resetAnim(){ stop(); state.progress=0; syncScrubber(); positionObjects(0); }
+  function syncScrubber(){ scrubber.value=Math.round(state.progress*1000); timeLabel.textContent=Math.round(state.progress*100)+"%"; }
+
+  function getSelected(){ return state.objects.find((o)=>o.id===state.selectedId)||null; }
+
+  function setTool(tool) {
+    state.tool = tool;
+    document.querySelectorAll(".tool[data-tool]").forEach((b)=>b.classList.toggle("is-active", b.dataset.tool===tool));
+    const labels={select:"Pilih",path:"Jalur",object:"Objek",erase:"Hapus"};
+    stageHint.textContent = labels[tool]||tool;
+    svg.style.cursor = tool==="select"?"default":"crosshair";
+    const tips={ path:"Mode Jalur — tap di kanvas untuk menambah titik.", object:"Mode Objek — tap untuk menempel objek.", erase:"Mode Hapus — tap objek/titik untuk menghapus.", select:"Mode Pilih — tahan & geser objek atau titik." };
+    toast(tips[tool]);
+  }
+  let toastTimer=null;
+  function toast(msg){ hintToast.innerHTML=msg; hintToast.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>hintToast.classList.remove("show"),2200); }
+
+  /* ===== Interaksi kanvas ===== */
+  svg.addEventListener("click",(evt)=>{
+    const pt=toSvgPoint(evt);
+    if (state.tool==="path"){ state.points.push(pt); renderPath(); positionObjects(state.progress); }
+    else if (state.tool==="object"){ addObject(pt); }
+  });
+
+  svg.addEventListener("pointerdown",(evt)=>{
+    const objG=evt.target.closest(".mp-obj"), node=evt.target.closest(".mp-node");
+    if (state.tool==="erase"){
+      if (objG){ const id=parseInt(objG.dataset.id,10); state.objects=state.objects.filter((o)=>o.id!==id); if(state.selectedId===id)state.selectedId=null; renderObjects(); syncObjUI(); }
+      else if (node){ const i=parseInt(node.dataset.i,10); state.points.splice(i,1); renderPath(); positionObjects(state.progress); }
+      return;
+    }
+    if (state.tool==="select"){
+      if (objG){ state.selectedId=parseInt(objG.dataset.id,10); renderObjects(); syncObjUI(); startDrag(evt,"obj"); }
+      else if (node){ startDrag(evt,"node",parseInt(node.dataset.i,10)); }
+      else { state.selectedId=null; renderObjects(); syncObjUI(); }
+    }
+  });
+
+  function startDrag(evt, kind, index) {
+    evt.preventDefault();
+    const pid=evt.pointerId;
+    try { svg.setPointerCapture(pid); } catch(e){}
+    const o = kind==="obj" ? getSelected() : null;
+    if (kind==="obj" && !o) return;
+    const move=(e)=>{
+      if (e.pointerId!==pid) return;
+      const pt=toSvgPoint(e);
+      if (kind==="obj"){ o.home={x:pt.x,y:pt.y}; positionObjects(state.progress); }
+      else { if(state.points[index]){ state.points[index]=pt; renderPath(); positionObjects(state.progress); } }
+    };
+    const up=(e)=>{
+      if (e.pointerId!==pid) return;
+      svg.removeEventListener("pointermove",move);
+      svg.removeEventListener("pointerup",up);
+      svg.removeEventListener("pointercancel",up);
+      try { svg.releasePointerCapture(pid); } catch(err){}
+    };
+    svg.addEventListener("pointermove",move);
+    svg.addEventListener("pointerup",up);
+    svg.addEventListener("pointercancel",up);
+  }
+
+  svg.addEventListener("pointermove",(evt)=>{ const pt=toSvgPoint(evt); coordsEl.textContent=`x:${pt.x} y:${pt.y}`; });
+
+  /* ===== Tool buttons (mobile + desktop share data-tool) ===== */
+  document.querySelectorAll(".tool[data-tool]").forEach((b)=>b.addEventListener("click",()=>setTool(b.dataset.tool)));
+
+  /* ===== Transport ===== */
+  btnPlay.addEventListener("click",togglePlay);
+  btnReset.addEventListener("click",resetAnim);
+  scrubber.addEventListener("input",()=>{ stop(); state.progress=parseInt(scrubber.value,10)/1000; timeLabel.textContent=Math.round(state.progress*100)+"%"; positionObjects(state.progress); });
+  btnTheme.addEventListener("click",()=>{ document.body.classList.toggle("theme-solar"); buildPalettes(); renderPath(); renderObjects(); });
+
+  btnExport.addEventListener("click",()=>{
+    const data={ project:"FRAMELESS Motion Path Animation Studio", version:1, exportedAt:new Date().toISOString(),
+      animation:{duration:settings.duration,easing:settings.easing,loop:settings.loop,orient:settings.orient,trail:settings.trail},
+      path:state.points, objects:state.objects.map((o)=>({shape:o.shape,size:o.size,color:o.color,start:o.start,home:o.home})) };
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob); const a=document.createElement("a");
+    a.href=url; a.download="frameless-motion.json"; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+
+  /* ===== Bottom sheet (mobile) ===== */
+  function openSheet(){ sheet.classList.add("open"); scrim.classList.add("open"); }
+  function closeSheet(){ sheet.classList.remove("open"); scrim.classList.remove("open"); }
+  btnSheet.addEventListener("click",openSheet);
+  scrim.addEventListener("click",closeSheet);
+  document.querySelectorAll(".sheet__tab").forEach((t)=>t.addEventListener("click",()=>{
+    const page=t.dataset.page;
+    document.querySelectorAll(".sheet__tab").forEach((x)=>x.classList.toggle("is-active",x===t));
+    document.querySelectorAll(".sheet__page").forEach((p)=>p.classList.toggle("is-active",p.dataset.page===page));
+  }));
+  // tutup sheet dengan swipe-down pada handle
+  (function(){
+    const grab=$("sheetGrab"); let startY=null;
+    grab.addEventListener("pointerdown",(e)=>{ startY=e.clientY; });
+    grab.addEventListener("pointerup",(e)=>{ if(startY!==null && e.clientY-startY>40) closeSheet(); startY=null; });
+  })();
+
+  /* ===== Build shape choosers (ada di rail desktop & sheet mobile) ===== */
+  const SHAPES=[["circle","●"],["square","■"],["triangle","▲"],["star","★"],["ring","◎"],["diamond","◆"]];
+  function buildShapeHosts(){
+    document.querySelectorAll("[data-shapehost]").forEach((host)=>{
+      host.innerHTML="";
+      SHAPES.forEach(([name,glyph])=>{
+        const b=document.createElement("button");
+        b.className="shape"+(name===state.shape?" is-active":"");
+        b.textContent=glyph; b.setAttribute("data-shape",name); b.setAttribute("aria-label",name);
+        b.addEventListener("click",()=>{
+          state.shape=name;
+          document.querySelectorAll(".shape").forEach((s)=>s.classList.toggle("is-active",s.getAttribute("data-shape")===name));
+          const o=getSelected(); if(o){ o.shape=name; renderObjects(); }
+        });
+        host.appendChild(b);
+      });
+    });
+  }
+
+  /* ===== Build control panels (anim / obj / design) untuk desktop & mobile ===== */
+  function panelAnimHTML(sfx){ return `
+    <div class="panel__title">Animasi</div>
+    <label class="field"><span class="field__label">Durasi (detik)</span>
+      <input type="range" min="0.5" max="12" step="0.1" data-bind="duration" />
+      <output class="field__out" data-out="duration"></output></label>
+    <label class="field"><span class="field__label">Easing</span>
+      <select data-bind="easing">
+        <option value="linear">Linear</option><option value="easeInOut">Ease In-Out</option>
+        <option value="easeIn">Ease In</option><option value="easeOut">Ease Out</option>
+        <option value="elastic">Elastic</option><option value="bounce">Bounce</option>
+      </select></label>
+    <label class="field field--check"><input type="checkbox" data-bind="loop" /><span>Ulang terus (loop)</span></label>
+    <label class="field field--check"><input type="checkbox" data-bind="orient" /><span>Rotasi mengikuti arah jalur</span></label>
+    <label class="field field--check"><input type="checkbox" data-bind="trail" /><span>Jejak gerak (motion trail)</span></label>`; }
+  function panelObjHTML(){ return `
+    <div class="panel__title">Objek Terpilih</div>
+    <label class="field"><span class="field__label">Ukuran</span>
+      <input type="range" min="8" max="90" step="1" data-bind="objSize" />
+      <output class="field__out" data-out="objSize"></output></label>
+    <label class="field"><span class="field__label">Warna</span>
+      <input type="color" data-bind="objColor" /></label>
+    <p class="panel__note" data-objnote>Tidak ada objek terpilih.</p>`; }
+  function panelDesignHTML(){ return `
+    <div class="panel__title">Design System</div>
+    <div class="palette" data-palettehost></div>
+    <div class="type-scale">
+      <p class="ts ts--xl">Aa</p>
+      <p class="ts ts--lg">Display · 2.618rem</p>
+      <p class="ts ts--md">Judul · 1.618rem</p>
+      <p class="ts ts--sm">Teks · 1rem · ratio φ (1.618)</p>
+    </div>`; }
+
+  function mountPanels(){
+    document.querySelectorAll('[data-panelhost]').forEach((host)=>{
+      const key=host.getAttribute("data-panelhost");
+      if (key.startsWith("anim")) host.innerHTML=panelAnimHTML();
+      else if (key.startsWith("obj")) host.innerHTML=panelObjHTML();
+      else if (key.startsWith("design")) host.innerHTML=panelDesignHTML();
+    });
+    wireBindings();
+    buildPalettes();
+    syncAllBindings();
+    syncObjUI();
+  }
+
+  /* ===== Two-way binding: semua kontrol dengan data-bind sinkron ke settings ===== */
+  function wireBindings(){
+    document.querySelectorAll("[data-bind]").forEach((input)=>{
+      const key=input.getAttribute("data-bind");
+      const evt=(input.type==="checkbox"||input.tagName==="SELECT")?"change":"input";
+      input.addEventListener(evt,()=>{
+        if (input.type==="checkbox") settings[key]=input.checked;
+        else if (input.type==="range") settings[key]=parseFloat(input.value);
+        else settings[key]=input.value;
+        applySetting(key);
+        syncBindingPeers(key, input);
+      });
+    });
+  }
+  function syncBindingPeers(key, source){
+    document.querySelectorAll(`[data-bind="${key}"]`).forEach((input)=>{
+      if (input===source) return;
+      if (input.type==="checkbox") input.checked=settings[key];
+      else input.value=settings[key];
+    });
+    document.querySelectorAll(`[data-out="${key}"]`).forEach((out)=>out.textContent=outText(key));
+  }
+  function syncAllBindings(){
+    for (const key in settings){
+      document.querySelectorAll(`[data-bind="${key}"]`).forEach((input)=>{
+        if (input.type==="checkbox") input.checked=settings[key];
+        else input.value=settings[key];
+      });
+      document.querySelectorAll(`[data-out="${key}"]`).forEach((out)=>out.textContent=outText(key));
+    }
+  }
+  function outText(key){
+    if (key==="duration") return parseFloat(settings.duration).toFixed(1)+"s";
+    if (key==="objSize") return settings.objSize+"px";
+    return settings[key];
+  }
+  function applySetting(key){
+    if (key==="trail"){ renderPath(); positionObjects(state.progress); }
+    else if (key==="orient"||key==="easing"){ positionObjects(state.progress); }
+    else if (key==="objSize"){ const o=getSelected(); if(o){ o.size=settings.objSize; renderObjects(); } }
+    else if (key==="objColor"){ const o=getSelected(); if(o){ o.color=settings.objColor; renderObjects(); } }
+  }
+  function syncObjUI(){
+    const o=getSelected();
+    document.querySelectorAll("[data-objnote]").forEach((n)=>{
+      n.textContent = o ? `Terpilih: ${o.shape} · ukuran ${o.size}px` : "Tidak ada objek terpilih.";
+    });
+    if (o){
+      settings.objSize=o.size; settings.objColor=o.color;
+      syncBindingPeers("objSize"); syncBindingPeers("objColor");
+    }
+  }
+
+  function buildPalettes(){
+    const styles=getComputedStyle(document.body);
+    const vals=["--accent","--accent-2","--accent-3","--accent-4"].map((v)=>styles.getPropertyValue(v).trim()||"#000");
+    document.querySelectorAll("[data-palettehost]").forEach((host)=>{
+      host.innerHTML="";
+      vals.forEach((hex)=>{
+        const sw=document.createElement("div");
+        sw.className="swatch"; sw.style.background=hex; sw.setAttribute("data-hex",hex);
+        sw.addEventListener("click",()=>{
+          if (hex.length===7){ settings.objColor=hex; syncBindingPeers("objColor"); const o=getSelected(); if(o){ o.color=hex; renderObjects(); } }
+        });
+        host.appendChild(sw);
+      });
+    });
+  }
+
+  /* ===== Keyboard (desktop) ===== */
+  window.addEventListener("keydown",(e)=>{
+    if (["INPUT","SELECT","TEXTAREA"].includes(e.target.tagName)) return;
+    const map={v:"select",p:"path",o:"object",e:"erase"};
+    if (map[e.key.toLowerCase()]) setTool(map[e.key.toLowerCase()]);
+    if (e.code==="Space"){ e.preventDefault(); togglePlay(); }
+    if (e.key==="Delete"||e.key==="Backspace"){ const o=getSelected(); if(o){ state.objects=state.objects.filter((x)=>x.id!==o.id); state.selectedId=null; renderObjects(); syncObjUI(); } }
+  });
+
+  /* ===== viewBox adaptif: ikut rasio area kanvas supaya isi mengisi penuh =====
+     Kita jaga TINGGI logis tetap (VBH), lalu LEBAR logis dihitung dari rasio layar.
+     Dengan begini: di HP portrait kanvas jadi "tinggi" (bukan melar landscape),
+     di desktop jadi "lebar". Bentuk objek tetap bulat karena skala x & y sama. */
+  const VBH = 1000;                 // tinggi logis tetap
+  let VBW = 1500;                   // lebar logis (dihitung ulang saat resize)
+  const wrap = $("canvasWrap");
+
+  function updateViewBox(){
+    const rect = wrap.getBoundingClientRect();
+    const ratio = (rect.width > 0 && rect.height > 0) ? (rect.width / rect.height) : 1.5;
+    VBW = Math.round(VBH * ratio);
+    svg.setAttribute("viewBox", `0 0 ${VBW} ${VBH}`);
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  }
+
+  /* ===== Demo awal (relatif terhadap VBW/VBH, jadi pas di portrait & landscape) ===== */
+  function seedDemo(){
+    const X = (fx) => Math.round(fx * VBW);
+    const Y = (fy) => Math.round(fy * VBH);
+    state.points = [
+      { x:X(.12), y:Y(.72) }, { x:X(.30), y:Y(.28) }, { x:X(.50), y:Y(.66) },
+      { x:X(.70), y:Y(.26) }, { x:X(.88), y:Y(.70) },
+    ];
+    renderPath();
+    const c=["#F5F749","#FF4D6D","#4DE1FF"], s=["circle","star","diamond"];
+    const base = Math.round(VBH * 0.03);   // ukuran objek proporsional
+    for (let i=0;i<3;i++) state.objects.push({ id:uid++, shape:s[i], size:base+i*6, color:c[i], start:i/3, home:{x:X(.12),y:Y(.72)} });
+    renderObjects();
+  }
+
+  /* saat ukuran layar berubah (rotasi HP / resize), sesuaikan viewBox */
+  let resizeTimer=null;
+  window.addEventListener("resize", ()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(()=>{ updateViewBox(); positionObjects(state.progress); }, 120);
+  });
+
+  function init(){
+    buildShapeHosts();
+    mountPanels();
+    setTool("select");
+    updateViewBox();     // tentukan viewBox dulu sebelum seed demo
+    seedDemo();
+    syncScrubber();
+    setTimeout(play,400);
+  }
+
+  if (document.readyState==="loading") document.addEventListener("DOMContentLoaded",init);
+  else init();
+})();
+  </script>
+</body>
+</html>
