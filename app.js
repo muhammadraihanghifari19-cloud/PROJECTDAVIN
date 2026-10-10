@@ -1,5 +1,5 @@
-﻿/* =========================================================
-   FRAMELESS Â· Engine (standalone, mobile-first)
+/* =========================================================
+   FRAMELESS · Engine (standalone, mobile-first)
    ========================================================= */
 (function () {
   "use strict";
@@ -119,11 +119,16 @@
     syncScrubber(); positionObjects(state.progress);
     if (state.playing) state.rafId = requestAnimationFrame(tick);
   }
+  function setPlayIcon(playing){
+    const p=btnPlay.querySelector(".ico-play"), q=btnPlay.querySelector(".ico-pause");
+    if(p) p.style.display = playing ? "none" : "";
+    if(q) q.style.display = playing ? "" : "none";
+  }
   function play() {
     if (state.objects.length===0 || state.points.length<2){ toast("Butuh minimal 1 objek & jalur 2+ titik untuk memutar."); return; }
-    state.playing=true; state.lastTs=0; btnPlay.textContent="â¸"; state.rafId=requestAnimationFrame(tick);
+    state.playing=true; state.lastTs=0; setPlayIcon(true); state.rafId=requestAnimationFrame(tick);
   }
-  function stop() { state.playing=false; btnPlay.textContent="â–¶"; if(state.rafId)cancelAnimationFrame(state.rafId); state.rafId=null; }
+  function stop() { state.playing=false; setPlayIcon(false); if(state.rafId)cancelAnimationFrame(state.rafId); state.rafId=null; }
   function togglePlay(){ state.playing?stop():play(); }
   function resetAnim(){ stop(); state.progress=0; syncScrubber(); positionObjects(0); }
   function syncScrubber(){ scrubber.value=Math.round(state.progress*1000); timeLabel.textContent=Math.round(state.progress*100)+"%"; }
@@ -136,7 +141,7 @@
     const labels={select:"Pilih",path:"Jalur",object:"Objek",erase:"Hapus"};
     stageHint.textContent = labels[tool]||tool;
     svg.style.cursor = tool==="select"?"default":"crosshair";
-    const tips={ path:"Mode Jalur â€” tap di kanvas untuk menambah titik.", object:"Mode Objek â€” tap untuk menempel objek.", erase:"Mode Hapus â€” tap objek/titik untuk menghapus.", select:"Mode Pilih â€” tahan & geser objek atau titik." };
+    const tips={ path:"Mode Jalur — tap di kanvas untuk menambah titik.", object:"Mode Objek — tap untuk menempel objek.", erase:"Mode Hapus — tap objek/titik untuk menghapus.", select:"Mode Pilih — tahan & geser objek atau titik." };
     toast(tips[tool]);
   }
   let toastTimer=null;
@@ -225,14 +230,22 @@
   })();
 
   /* ===== Build shape choosers (ada di rail desktop & sheet mobile) ===== */
-  const SHAPES=[["circle","â—"],["square","â– "],["triangle","â–²"],["star","â˜…"],["ring","â—Ž"],["diamond","â—†"]];
+  const SHAPE_SVG = {
+    circle:   '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="12" cy="12" r="9"/></svg>',
+    square:   '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>',
+    triangle: '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 3l9 17H3z"/></svg>',
+    star:     '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 21.2l1.5-6.8L2.2 9.9l6.9-.7z"/></svg>',
+    ring:     '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="8"/></svg>',
+    diamond:  '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2l10 10-10 10L2 12z"/></svg>',
+  };
+  const SHAPES=[["circle"],["square"],["triangle"],["star"],["ring"],["diamond"]];
   function buildShapeHosts(){
     document.querySelectorAll("[data-shapehost]").forEach((host)=>{
       host.innerHTML="";
-      SHAPES.forEach(([name,glyph])=>{
+      SHAPES.forEach(([name])=>{
         const b=document.createElement("button");
         b.className="shape"+(name===state.shape?" is-active":"");
-        b.textContent=glyph; b.setAttribute("data-shape",name); b.setAttribute("aria-label",name);
+        b.innerHTML=SHAPE_SVG[name]; b.setAttribute("data-shape",name); b.setAttribute("aria-label",name);
         b.addEventListener("click",()=>{
           state.shape=name;
           document.querySelectorAll(".shape").forEach((s)=>s.classList.toggle("is-active",s.getAttribute("data-shape")===name));
@@ -271,9 +284,9 @@
     <div class="palette" data-palettehost></div>
     <div class="type-scale">
       <p class="ts ts--xl">Aa</p>
-      <p class="ts ts--lg">Display Â· 2.618rem</p>
-      <p class="ts ts--md">Judul Â· 1.618rem</p>
-      <p class="ts ts--sm">Teks Â· 1rem Â· ratio Ï† (1.618)</p>
+      <p class="ts ts--lg">Display · 2.618rem</p>
+      <p class="ts ts--md">Judul · 1.618rem</p>
+      <p class="ts ts--sm">Teks · 1rem · ratio φ (1.618)</p>
     </div>`; }
 
   function mountPanels(){
@@ -334,7 +347,7 @@
   function syncObjUI(){
     const o=getSelected();
     document.querySelectorAll("[data-objnote]").forEach((n)=>{
-      n.textContent = o ? `Terpilih: ${o.shape} Â· ukuran ${o.size}px` : "Tidak ada objek terpilih.";
+      n.textContent = o ? `Terpilih: ${o.shape} · ukuran ${o.size}px` : "Tidak ada objek terpilih.";
     });
     if (o){
       settings.objSize=o.size; settings.objColor=o.color;

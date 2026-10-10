@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0E0E12" />
-  <meta name="description" content="FRAMELESS Motion Path Animation Studio — alat multifungsi untuk desainer kreatif. Gambar jalur gerak, animasikan objek, dan kelola design system." />
-  <title>FRAMELESS · Motion Path Animation Studio</title>
+  <meta name="description" content="FRAMELESS Motion Path Animation Studio" />
+  <title>FRAMELESS - Motion Path Animation Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -26,14 +26,23 @@
           </div>
         </div>
         <div class="topbar__actions">
-          <button class="icon-btn" id="btnReset" title="Reset">âŸ²</button>
-          <button class="icon-btn" id="btnTheme" title="Ganti tema">â—‘</button>
-          <button class="icon-btn" id="btnExport" title="Export JSON">â‡©</button>
+          <button class="icon-btn" id="btnReset" title="Reset" aria-label="Reset">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg>
+          </button>
+          <button class="icon-btn" id="btnTheme" title="Ganti tema" aria-label="Ganti tema">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" fill="currentColor"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>
+          </button>
+          <button class="icon-btn" id="btnExport" title="Export JSON" aria-label="Export JSON">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+          </button>
         </div>
       </div>
       <!-- Baris 2: play + timeline memanjang penuh -->
       <div class="topbar__row topbar__row--transport">
-        <button class="btn-play" id="btnPlay" title="Play / Pause">â–¶</button>
+        <button class="btn-play" id="btnPlay" title="Play / Pause" aria-label="Play / Pause">
+          <svg class="ico-play" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M7 5v14l12-7z"/></svg>
+          <svg class="ico-pause" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:none"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+        </button>
         <div class="scrubbar">
           <input type="range" id="scrubber" min="0" max="1000" value="0" step="1" aria-label="Garis waktu" />
           <span class="time" id="timeLabel">0%</span>
@@ -44,10 +53,18 @@
     <!-- ============ LEFT RAIL (desktop only) ============ -->
     <aside class="rail rail--left" aria-label="Perkakas">
       <nav class="tools" id="desktopTools">
-        <button class="tool is-active" data-tool="select"><span class="tool__icon">âŒ–</span><span class="tool__label">Select</span></button>
-        <button class="tool" data-tool="path"><span class="tool__icon">âœŽ</span><span class="tool__label">Path</span></button>
-        <button class="tool" data-tool="object"><span class="tool__icon">â—†</span><span class="tool__label">Object</span></button>
-        <button class="tool" data-tool="erase"><span class="tool__icon">âŒ«</span><span class="tool__label">Erase</span></button>
+        <button class="tool is-active" data-tool="select"><span class="tool__icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3l16 7-7 2-2 7z"/></svg>
+        </span><span class="tool__label">Select</span></button>
+        <button class="tool" data-tool="path"><span class="tool__icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><circle cx="3" cy="17" r="1.6" fill="currentColor"/><circle cx="21" cy="7" r="1.6" fill="currentColor"/></svg>
+        </span><span class="tool__label">Path</span></button>
+        <button class="tool" data-tool="object"><span class="tool__icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+        </span><span class="tool__label">Object</span></button>
+        <button class="tool" data-tool="erase"><span class="tool__icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14l6 6h9"/><path d="M4 14L14 4l6 6-10 10"/></svg>
+        </span><span class="tool__label">Erase</span></button>
       </nav>
       <div class="rail__group">
         <div class="rail__title">Bentuk Objek</div>
@@ -89,11 +106,21 @@
 
     <!-- ============ BOTTOM TOOLBAR (mobile only) ============ -->
     <nav class="toolbar" id="mobileTools" aria-label="Perkakas">
-      <button class="tool is-active" data-tool="select"><span class="tool__icon">âŒ–</span><span class="tool__label">Pilih</span></button>
-      <button class="tool" data-tool="path"><span class="tool__icon">âœŽ</span><span class="tool__label">Jalur</span></button>
-      <button class="tool" data-tool="object"><span class="tool__icon">â—†</span><span class="tool__label">Objek</span></button>
-      <button class="tool" data-tool="erase"><span class="tool__icon">âŒ«</span><span class="tool__label">Hapus</span></button>
-      <button class="tool tool--sheet" id="btnSheet"><span class="tool__icon">âš™</span><span class="tool__label">Atur</span></button>
+      <button class="tool is-active" data-tool="select"><span class="tool__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3l16 7-7 2-2 7z"/></svg>
+      </span><span class="tool__label">Pilih</span></button>
+      <button class="tool" data-tool="path"><span class="tool__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><circle cx="3" cy="17" r="1.6" fill="currentColor"/><circle cx="21" cy="7" r="1.6" fill="currentColor"/></svg>
+      </span><span class="tool__label">Jalur</span></button>
+      <button class="tool" data-tool="object"><span class="tool__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+      </span><span class="tool__label">Objek</span></button>
+      <button class="tool" data-tool="erase"><span class="tool__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14l6 6h9"/><path d="M4 14L14 4l6 6-10 10"/></svg>
+      </span><span class="tool__label">Hapus</span></button>
+      <button class="tool tool--sheet" id="btnSheet"><span class="tool__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
+      </span><span class="tool__label">Atur</span></button>
     </nav>
 
     <!-- ============ STATUS BAR (desktop only) ============ -->
@@ -101,7 +128,7 @@
       <span id="statusObjects">Objek: 0</span>
       <span id="statusPoints">Titik jalur: 0</span>
       <span class="statusbar__spacer"></span>
-      <span class="statusbar__credit">FRAMELESS Studio Â· for creative industry</span>
+      <span class="statusbar__credit">FRAMELESS Studio · for creative industry</span>
     </footer>
   </div>
 

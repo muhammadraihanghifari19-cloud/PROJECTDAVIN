@@ -181,9 +181,14 @@ button { font-family:inherit; }
   cursor:pointer; min-height:58px;
   transition:background .15s ease, color .15s ease, border-color .15s ease;
 }
-.tool .tool__icon { font-size:1.35rem; line-height:1; }
+.tool .tool__icon { line-height:0; display:grid; place-items:center; }
+.tool .tool__icon svg { display:block; }
 .tool .tool__label { font-size:.66rem; letter-spacing:.02em; }
 .tool.is-active { background:var(--bg-3); color:var(--accent); border-color:var(--accent); }
+
+/* ikon generik: ikut warna teks tombol */
+.icon-btn svg, .btn-play svg { display:block; }
+.shape svg { display:block; }
 
 /* tombol buka sheet properti sebagai item toolbar paling kanan */
 .tool--sheet { color:var(--accent-3); }
@@ -366,14 +371,23 @@ input[type="checkbox"] { accent-color:var(--accent); width:22px; height:22px; cu
           </div>
         </div>
         <div class="topbar__actions">
-          <button class="icon-btn" id="btnReset" title="Reset">⟲</button>
-          <button class="icon-btn" id="btnTheme" title="Ganti tema">◑</button>
-          <button class="icon-btn" id="btnExport" title="Export JSON">⇩</button>
+          <button class="icon-btn" id="btnReset" title="Reset" aria-label="Reset">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg>
+          </button>
+          <button class="icon-btn" id="btnTheme" title="Ganti tema" aria-label="Ganti tema">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18" fill="currentColor"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>
+          </button>
+          <button class="icon-btn" id="btnExport" title="Export JSON" aria-label="Export JSON">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+          </button>
         </div>
       </div>
       <!-- Baris 2: play + timeline memanjang penuh -->
       <div class="topbar__row topbar__row--transport">
-        <button class="btn-play" id="btnPlay" title="Play / Pause">▶</button>
+        <button class="btn-play" id="btnPlay" title="Play / Pause" aria-label="Play / Pause">
+          <svg class="ico-play" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M7 5v14l12-7z"/></svg>
+          <svg class="ico-pause" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:none"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+        </button>
         <div class="scrubbar">
           <input type="range" id="scrubber" min="0" max="1000" value="0" step="1" aria-label="Garis waktu" />
           <span class="time" id="timeLabel">0%</span>
@@ -384,10 +398,18 @@ input[type="checkbox"] { accent-color:var(--accent); width:22px; height:22px; cu
     <!-- ============ LEFT RAIL (desktop only) ============ -->
     <aside class="rail rail--left" aria-label="Perkakas">
       <nav class="tools" id="desktopTools">
-        <button class="tool is-active" data-tool="select"><span class="tool__icon">⌖</span><span class="tool__label">Select</span></button>
-        <button class="tool" data-tool="path"><span class="tool__icon">✎</span><span class="tool__label">Path</span></button>
-        <button class="tool" data-tool="object"><span class="tool__icon">◆</span><span class="tool__label">Object</span></button>
-        <button class="tool" data-tool="erase"><span class="tool__icon">⌫</span><span class="tool__label">Erase</span></button>
+        <button class="tool is-active" data-tool="select"><span class="tool__icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3l16 7-7 2-2 7z"/></svg>
+        </span><span class="tool__label">Select</span></button>
+        <button class="tool" data-tool="path"><span class="tool__icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><circle cx="3" cy="17" r="1.6" fill="currentColor"/><circle cx="21" cy="7" r="1.6" fill="currentColor"/></svg>
+        </span><span class="tool__label">Path</span></button>
+        <button class="tool" data-tool="object"><span class="tool__icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+        </span><span class="tool__label">Object</span></button>
+        <button class="tool" data-tool="erase"><span class="tool__icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14l6 6h9"/><path d="M4 14L14 4l6 6-10 10"/></svg>
+        </span><span class="tool__label">Erase</span></button>
       </nav>
       <div class="rail__group">
         <div class="rail__title">Bentuk Objek</div>
@@ -429,11 +451,21 @@ input[type="checkbox"] { accent-color:var(--accent); width:22px; height:22px; cu
 
     <!-- ============ BOTTOM TOOLBAR (mobile only) ============ -->
     <nav class="toolbar" id="mobileTools" aria-label="Perkakas">
-      <button class="tool is-active" data-tool="select"><span class="tool__icon">⌖</span><span class="tool__label">Pilih</span></button>
-      <button class="tool" data-tool="path"><span class="tool__icon">✎</span><span class="tool__label">Jalur</span></button>
-      <button class="tool" data-tool="object"><span class="tool__icon">◆</span><span class="tool__label">Objek</span></button>
-      <button class="tool" data-tool="erase"><span class="tool__icon">⌫</span><span class="tool__label">Hapus</span></button>
-      <button class="tool tool--sheet" id="btnSheet"><span class="tool__icon">⚙</span><span class="tool__label">Atur</span></button>
+      <button class="tool is-active" data-tool="select"><span class="tool__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3l16 7-7 2-2 7z"/></svg>
+      </span><span class="tool__label">Pilih</span></button>
+      <button class="tool" data-tool="path"><span class="tool__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><circle cx="3" cy="17" r="1.6" fill="currentColor"/><circle cx="21" cy="7" r="1.6" fill="currentColor"/></svg>
+      </span><span class="tool__label">Jalur</span></button>
+      <button class="tool" data-tool="object"><span class="tool__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 2l10 10-10 10L2 12z"/></svg>
+      </span><span class="tool__label">Objek</span></button>
+      <button class="tool" data-tool="erase"><span class="tool__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14l6 6h9"/><path d="M4 14L14 4l6 6-10 10"/></svg>
+      </span><span class="tool__label">Hapus</span></button>
+      <button class="tool tool--sheet" id="btnSheet"><span class="tool__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
+      </span><span class="tool__label">Atur</span></button>
     </nav>
 
     <!-- ============ STATUS BAR (desktop only) ============ -->
@@ -588,11 +620,16 @@ input[type="checkbox"] { accent-color:var(--accent); width:22px; height:22px; cu
     syncScrubber(); positionObjects(state.progress);
     if (state.playing) state.rafId = requestAnimationFrame(tick);
   }
+  function setPlayIcon(playing){
+    const p=btnPlay.querySelector(".ico-play"), q=btnPlay.querySelector(".ico-pause");
+    if(p) p.style.display = playing ? "none" : "";
+    if(q) q.style.display = playing ? "" : "none";
+  }
   function play() {
     if (state.objects.length===0 || state.points.length<2){ toast("Butuh minimal 1 objek & jalur 2+ titik untuk memutar."); return; }
-    state.playing=true; state.lastTs=0; btnPlay.textContent="⏸"; state.rafId=requestAnimationFrame(tick);
+    state.playing=true; state.lastTs=0; setPlayIcon(true); state.rafId=requestAnimationFrame(tick);
   }
-  function stop() { state.playing=false; btnPlay.textContent="▶"; if(state.rafId)cancelAnimationFrame(state.rafId); state.rafId=null; }
+  function stop() { state.playing=false; setPlayIcon(false); if(state.rafId)cancelAnimationFrame(state.rafId); state.rafId=null; }
   function togglePlay(){ state.playing?stop():play(); }
   function resetAnim(){ stop(); state.progress=0; syncScrubber(); positionObjects(0); }
   function syncScrubber(){ scrubber.value=Math.round(state.progress*1000); timeLabel.textContent=Math.round(state.progress*100)+"%"; }
@@ -694,14 +731,22 @@ input[type="checkbox"] { accent-color:var(--accent); width:22px; height:22px; cu
   })();
 
   /* ===== Build shape choosers (ada di rail desktop & sheet mobile) ===== */
-  const SHAPES=[["circle","●"],["square","■"],["triangle","▲"],["star","★"],["ring","◎"],["diamond","◆"]];
+  const SHAPE_SVG = {
+    circle:   '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="12" cy="12" r="9"/></svg>',
+    square:   '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>',
+    triangle: '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 3l9 17H3z"/></svg>',
+    star:     '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.8 5.9 21.2l1.5-6.8L2.2 9.9l6.9-.7z"/></svg>',
+    ring:     '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="8"/></svg>',
+    diamond:  '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2l10 10-10 10L2 12z"/></svg>',
+  };
+  const SHAPES=[["circle"],["square"],["triangle"],["star"],["ring"],["diamond"]];
   function buildShapeHosts(){
     document.querySelectorAll("[data-shapehost]").forEach((host)=>{
       host.innerHTML="";
-      SHAPES.forEach(([name,glyph])=>{
+      SHAPES.forEach(([name])=>{
         const b=document.createElement("button");
         b.className="shape"+(name===state.shape?" is-active":"");
-        b.textContent=glyph; b.setAttribute("data-shape",name); b.setAttribute("aria-label",name);
+        b.innerHTML=SHAPE_SVG[name]; b.setAttribute("data-shape",name); b.setAttribute("aria-label",name);
         b.addEventListener("click",()=>{
           state.shape=name;
           document.querySelectorAll(".shape").forEach((s)=>s.classList.toggle("is-active",s.getAttribute("data-shape")===name));
